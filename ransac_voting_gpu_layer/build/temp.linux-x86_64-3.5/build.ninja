@@ -1,0 +1,27 @@
+ninja_required_version = 1.3
+cxx = c++
+nvcc = /usr/local/cuda-10.0/bin/nvcc
+
+cflags = -pthread -B /home/wugui/anaconda3/envs/py35/compiler_compat -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/torch/csrc/api/include -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/TH -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/THC -I/usr/local/cuda-10.0/include -I/home/wugui/anaconda3/envs/py35/include/python3.5m -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=ransac_voting -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+cuda_cflags = -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/torch/csrc/api/include -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/TH -I/home/wugui/anaconda3/envs/py35/lib/python3.5/site-packages/torch/include/THC -I/usr/local/cuda-10.0/include -I/home/wugui/anaconda3/envs/py35/include/python3.5m -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=ransac_voting -D_GLIBCXX_USE_CXX11_ABI=0 -gencode=arch=compute_61,code=sm_61 -std=c++14
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  command = $nvcc $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+build /home/wugui/siw-demo/HybridPose/lib/ransac_voting_gpu_layer/build/temp.linux-x86_64-3.5/./src/ransac_voting.o: compile /home/wugui/siw-demo/HybridPose/lib/ransac_voting_gpu_layer/src/ransac_voting.cpp
+build /home/wugui/siw-demo/HybridPose/lib/ransac_voting_gpu_layer/build/temp.linux-x86_64-3.5/./src/ransac_voting_kernel.o: cuda_compile /home/wugui/siw-demo/HybridPose/lib/ransac_voting_gpu_layer/src/ransac_voting_kernel.cu
+
+
+
+
+
